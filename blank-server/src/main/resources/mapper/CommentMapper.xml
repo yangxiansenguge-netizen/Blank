@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blank.app.mapper.CommentMapper">
+
+    <resultMap id="commentMap" type="com.blank.app.entity.Comment">
+        <id column="id" property="id"/>
+        <result column="postcard_id" property="postcardId"/>
+        <result column="user_id" property="userId"/>
+        <result column="content" property="content"/>
+        <result column="is_pinned" property="isPinned"/>
+        <result column="likes_count" property="likesCount"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <select id="selectByPostcardId" resultMap="commentMap">
+        SELECT * FROM comments WHERE postcard_id = #{postcardId} ORDER BY is_pinned DESC, created_at DESC
+    </select>
+
+    <select id="selectById" resultMap="commentMap">
+        SELECT * FROM comments WHERE id = #{id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO comments (postcard_id, user_id, content, is_pinned, likes_count)
+        VALUES (#{postcardId},#{userId},#{content},#{isPinned},#{likesCount})
+    </insert>
+
+    <update id="updateById">
+        UPDATE comments
+        <set>
+            <if test="content != null">content = #{content},</if>
+            <if test="isPinned != null">is_pinned = #{isPinned},</if>
+            <if test="likesCount != null">likes_count = #{likesCount},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM comments WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByPostcardId">
+        DELETE FROM comments WHERE postcard_id = #{postcardId}
+    </delete>
+
+    <delete id="deleteByUserId">
+        DELETE FROM comments WHERE user_id = #{userId}
+    </delete>
+</mapper>

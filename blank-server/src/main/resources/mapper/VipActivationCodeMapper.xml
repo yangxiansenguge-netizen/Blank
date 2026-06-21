@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blank.app.mapper.VipActivationCodeMapper">
+    <resultMap id="vacMap" type="com.blank.app.entity.VipActivationCode">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="vip_level" property="vipLevel"/>
+        <result column="valid_days" property="validDays"/>
+        <result column="status" property="status"/>
+        <result column="note" property="note"/>
+        <result column="used_by" property="usedBy"/>
+        <result column="used_at" property="usedAt"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+    <select id="selectByCode" resultMap="vacMap">
+        SELECT * FROM vip_activation_codes WHERE code = #{code}
+    </select>
+    <select id="selectAll" resultMap="vacMap">
+        SELECT * FROM vip_activation_codes ORDER BY created_at DESC, id DESC
+    </select>
+    <select id="countAll" resultType="long">
+        SELECT COUNT(*) FROM vip_activation_codes
+    </select>
+    <select id="countUnused" resultType="long">
+        SELECT COUNT(*) FROM vip_activation_codes WHERE status = 'unused'
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO vip_activation_codes (code, vip_level, valid_days, status, note, created_by)
+        VALUES (#{code},#{vipLevel},#{validDays},#{status},#{note},#{createdBy})
+    </insert>
+    <update id="updateById">
+        UPDATE vip_activation_codes
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="usedBy != null">used_by = #{usedBy},</if>
+            <if test="usedAt != null">used_at = #{usedAt},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    <delete id="deleteById">
+        DELETE FROM vip_activation_codes WHERE id = #{id}
+    </delete>
+</mapper>

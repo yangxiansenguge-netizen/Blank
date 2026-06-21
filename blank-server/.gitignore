@@ -1,0 +1,9 @@
+target/
+*.jar
+*.class
+.idea/
+*.iml
+application-secret.yml
+logs/
+uploads/
+res/

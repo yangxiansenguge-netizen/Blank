@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blank.app.mapper.StampMapper">
+
+    <resultMap id="stampMap" type="com.blank.app.entity.Stamp">
+        <id column="id" property="id"/>
+        <result column="series_id" property="seriesId"/>
+        <result column="title" property="title"/>
+        <result column="description" property="description"/>
+        <result column="price" property="price"/>
+        <result column="image_path" property="imagePath"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="stampMap">
+        SELECT * FROM stamps WHERE id = #{id}
+    </select>
+
+    <select id="selectByIdForUpdate" resultMap="stampMap">
+        SELECT * FROM stamps WHERE id = #{id} FOR UPDATE
+    </select>
+
+    <select id="selectAll" resultMap="stampMap">
+        SELECT * FROM stamps ORDER BY series_id ASC, id DESC
+    </select>
+
+    <select id="selectBySeriesId" resultMap="stampMap">
+        SELECT * FROM stamps WHERE series_id = #{seriesId} ORDER BY id DESC
+    </select>
+
+    <select id="selectByKeyword" resultMap="stampMap">
+        SELECT * FROM stamps
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (title LIKE concat('%',#{keyword},'%') OR description LIKE concat('%',#{keyword},'%'))
+            </if>
+            <if test="seriesId != null and seriesId != ''">
+                AND series_id = #{seriesId}
+            </if>
+        </where>
+        ORDER BY series_id ASC, id DESC
+    </select>
+
+    <select id="countAll" resultType="long">
+        SELECT COUNT(*) FROM stamps
+    </select>
+
+    <select id="countBySeriesId" resultType="long">
+        SELECT COUNT(*) FROM stamps WHERE series_id = #{seriesId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO stamps (series_id, title, description, price, image_path)
+        VALUES (#{seriesId},#{title},#{description},#{price},#{imagePath})
+    </insert>
+
+    <update id="updateStampsSeriesName">
+        UPDATE stamps SET series_id = #{newName} WHERE series_id = #{oldName}
+    </update>
+
+    <update id="updateById">
+        UPDATE stamps
+        <set>
+            <if test="seriesId != null">series_id = #{seriesId},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="imagePath != null">image_path = #{imagePath},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM stamps WHERE id = #{id}
+    </delete>
+</mapper>

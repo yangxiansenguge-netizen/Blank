@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip list:*)",
+      "Bash(pip3 list:*)",
+      "Bash(python3 -c \":*)",
+      "Bash(python3 -c \"print\\(''hello''\\)\")",
+      "Bash(where python:*)",
+      "Bash(where python3:*)",
+      "Bash(ls /c/Users/杨泽林/AppData/Local/Microsoft/WindowsApps/python*)",
+      "Bash(D:/python/python.exe -c \"print\\(''hello''\\)\")",
+      "Bash(D:/python/python.exe -m pip install python-docx python-pptx)",
+      "Bash(D:/python/python.exe -c \":*)"
+    ]
+  }
+}

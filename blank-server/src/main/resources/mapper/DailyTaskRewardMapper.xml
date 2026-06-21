@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blank.app.mapper.DailyTaskRewardMapper">
+    <select id="selectByUserTaskDate" resultType="com.blank.app.entity.DailyTaskReward">
+        SELECT * FROM daily_task_rewards WHERE user_id = #{userId} AND task_type = #{taskType} AND reward_date = #{rewardDate}
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO daily_task_rewards (user_id, task_type, reward_date, coins_earned) VALUES (#{userId},#{taskType},#{rewardDate},#{coinsEarned})
+    </insert>
+</mapper>

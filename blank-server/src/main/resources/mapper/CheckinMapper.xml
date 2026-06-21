@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blank.app.mapper.CheckinMapper">
+    <select id="selectByUserAndDate" resultType="com.blank.app.entity.Checkin">
+        SELECT * FROM checkins WHERE user_id = #{userId} AND checkin_date = #{date}
+    </select>
+    <select id="selectByUserAndMonth" resultType="com.blank.app.entity.Checkin">
+        SELECT * FROM checkins WHERE user_id = #{userId} AND checkin_date BETWEEN #{startDate} AND #{endDate} ORDER BY checkin_date DESC
+    </select>
+    <insert id="insert">
+        INSERT INTO checkins (user_id, checkin_date, coins_earned) VALUES (#{userId},#{checkinDate},#{coinsEarned})
+    </insert>
+    <delete id="deleteByUserId">
+        DELETE FROM checkins WHERE user_id = #{userId}
+    </delete>
+</mapper>

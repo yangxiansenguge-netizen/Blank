@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blank.app.mapper.PostcardMapper">
+
+    <resultMap id="postcardMap" type="com.blank.app.entity.Postcard">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="title" property="title"/>
+        <result column="image_url" property="imageUrl"/>
+        <result column="image_offset_x" property="imageOffsetX"/>
+        <result column="image_offset_y" property="imageOffsetY"/>
+        <result column="image_scale" property="imageScale"/>
+        <result column="image_rotation" property="imageRotation"/>
+        <result column="aspect_ratio" property="aspectRatio"/>
+        <result column="canvas_width" property="canvasWidth"/>
+        <result column="canvas_height" property="canvasHeight"/>
+        <result column="stamp_id" property="stampId"/>
+        <result column="recipient_input" property="recipientInput"/>
+        <result column="is_public" property="isPublic"/>
+        <result column="postcard_type" property="postcardType"/>
+        <result column="elements" property="elements"/>
+        <result column="status" property="status"/>
+        <result column="review_reason" property="reviewReason"/>
+        <result column="scheduled_at" property="scheduledAt"/>
+        <result column="sender_deleted" property="senderDeleted"/>
+        <result column="recipient_deleted" property="recipientDeleted"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <sql id="baseColumns">
+        id,user_id,title,image_url,image_offset_x,image_offset_y,image_scale,image_rotation,
+        aspect_ratio,canvas_width,canvas_height,stamp_id,recipient_input,is_public,
+        postcard_type,elements,status,review_reason,scheduled_at,sender_deleted,recipient_deleted,created_at
+    </sql>
+
+    <select id="selectById" resultMap="postcardMap">
+        SELECT <include refid="baseColumns"/> FROM postcards WHERE id = #{id}
+    </select>
+
+    <select id="selectByIdForUpdate" resultMap="postcardMap">
+        SELECT <include refid="baseColumns"/> FROM postcards WHERE id = #{id} FOR UPDATE
+    </select>
+
+    <select id="selectDiscoverPage" resultMap="postcardMap">
+        SELECT <include refid="baseColumns"/> FROM postcards
+        WHERE is_public = 1 AND postcard_type = 'normal' AND status = 'sent' AND sender_deleted = 0
+        ORDER BY created_at DESC, id DESC
+    </select>
+
+    <select id="selectDriftingPage" resultMap="postcardMap">
+        SELECT <include refid="baseColumns"/> FROM postcards
+        WHERE postcard_type = 'drifting' AND status = 'sent' AND sender_deleted = 0
+        ORDER BY created_at DESC, id DESC
+    </select>
+
+    <select id="selectInboxPage" resultMap="postcardMap">
+        SELECT <include refid="baseColumns"/> FROM postcards
+        WHERE recipient_input = #{recipientInput} AND status = 'sent' AND recipient_deleted = 0
+        ORDER BY created_at DESC, id DESC
+    </select>
+
+    <select id="selectOutboxPage" resultMap="postcardMap">
+        SELECT <include refid="baseColumns"/> FROM postcards
+        WHERE user_id = #{userId} AND sender_deleted = 0
+        ORDER BY created_at DESC, id DESC
+    </select>
+
+    <select id="selectAdminPage" resultMap="postcardMap">
+        SELECT <include refid="baseColumns"/> FROM postcards
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (title LIKE concat('%',#{keyword},'%') OR recipient_input LIKE concat('%',#{keyword},'%'))
+            </if>
+            <if test="postcardType != null and postcardType != ''">
+                AND postcard_type = #{postcardType}
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY created_at DESC, id DESC
+    </select>
+
+    <select id="selectScheduledToProcess" resultMap="postcardMap">
+        SELECT <include refid="baseColumns"/> FROM postcards
+        WHERE status = 'scheduled' AND scheduled_at IS NOT NULL AND scheduled_at &lt;= NOW()
+        ORDER BY scheduled_at ASC LIMIT 20
+    </select>
+
+    <select id="selectPendingList" resultMap="postcardMap">
+        SELECT <include refid="baseColumns"/> FROM postcards
+        WHERE status = 'pending' ORDER BY created_at ASC
+    </select>
+
+    <select id="selectByUserId" resultMap="postcardMap">
+        SELECT <include refid="baseColumns"/> FROM postcards WHERE user_id = #{userId}
+    </select>
+
+    <select id="countByUserIdAndToday" resultType="long">
+        SELECT COUNT(*) FROM postcards
+        WHERE user_id = #{userId} AND created_at &gt;= #{startOfDay} AND created_at &lt; #{endOfDay}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO postcards (user_id, title, image_url, image_offset_x, image_offset_y, image_scale, image_rotation,
+        aspect_ratio, canvas_width, canvas_height, stamp_id, recipient_input, is_public, postcard_type, elements, status, review_reason, scheduled_at, sender_deleted, recipient_deleted)
+        VALUES (#{userId},#{title},#{imageUrl},#{imageOffsetX},#{imageOffsetY},#{imageScale},#{imageRotation},
+        #{aspectRatio},#{canvasWidth},#{canvasHeight},#{stampId},#{recipientInput},#{isPublic},#{postcardType},#{elements},#{status},#{reviewReason},#{scheduledAt},#{senderDeleted},#{recipientDeleted})
+    </insert>
+
+    <update id="updateById">
+        UPDATE postcards
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="imageUrl != null">image_url = #{imageUrl},</if>
+            <if test="recipientInput != null">recipient_input = #{recipientInput},</if>
+            <if test="isPublic != null">is_public = #{isPublic},</if>
+            <if test="postcardType != null">postcard_type = #{postcardType},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="reviewReason != null">review_reason = #{reviewReason},</if>
+            <if test="elements != null">elements = #{elements},</if>
+            <if test="senderDeleted != null">sender_deleted = #{senderDeleted},</if>
+            <if test="recipientDeleted != null">recipient_deleted = #{recipientDeleted},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM postcards WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByUserId">
+        DELETE FROM postcards WHERE user_id = #{userId}
+    </delete>
+
+    <select id="countAll" resultType="long">
+        SELECT COUNT(*) FROM postcards
+    </select>
+
+    <select id="countDrifting" resultType="long">
+        SELECT COUNT(*) FROM postcards WHERE postcard_type = 'drifting'
+    </select>
+</mapper>

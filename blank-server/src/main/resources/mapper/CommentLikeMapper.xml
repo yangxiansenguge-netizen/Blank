@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blank.app.mapper.CommentLikeMapper">
+    <select id="selectByUserAndComment" resultType="com.blank.app.entity.CommentLike">
+        SELECT * FROM comment_likes WHERE user_id = #{userId} AND comment_id = #{commentId}
+    </select>
+    <select id="selectLikedIds" resultType="integer">
+        SELECT comment_id FROM comment_likes WHERE user_id = #{userId}
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO comment_likes (user_id, comment_id) VALUES (#{userId},#{commentId})
+    </insert>
+    <delete id="deleteById">
+        DELETE FROM comment_likes WHERE id = #{id}
+    </delete>
+    <delete id="deleteByCommentId">
+        DELETE FROM comment_likes WHERE comment_id = #{commentId}
+    </delete>
+    <delete id="deleteByUserId">
+        DELETE FROM comment_likes WHERE user_id = #{userId}
+    </delete>
+</mapper>
